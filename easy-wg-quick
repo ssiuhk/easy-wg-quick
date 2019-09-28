@@ -66,8 +66,8 @@ create_hub_key() {
 }
 
 create_hub_conf() {
-    echo "No wghub.conf... creating one!"
-    cat > wghub.conf << EOF
+    echo "No wg0.conf... creating one!"
+    cat > wg0.conf << EOF
 [Interface]
 Address = $INT_NET_HUB_IP$INT_NET_MASK
 ListenPort = $EXT_NET_PORT
@@ -94,7 +94,7 @@ PostDown = ip6tables -t mangle -D POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o 
 
 EOF
     echo "Wireguard hub address is $EXT_NET_IP:$EXT_NET_PORT on $EXT_NET_IF."
-    echo "Note: customize [Interface] section of wghub.conf if required!"
+    echo "Note: customize [Interface] section of wg0.conf if required!"
 }
 
 create_new_client_conf() {
@@ -115,8 +115,8 @@ EOF
 }
 
 add_client_to_hub_conf() {
-    printf "Updating wghub.conf..."
-    cat >> wghub.conf << EOF
+    printf "Updating wg0.conf..."
+    cat >> wg0.conf << EOF
 
 [Peer]
 PublicKey = $(wg pubkey < "wgclient$1.key")
@@ -127,9 +127,9 @@ EOF
     echo " done!"
 cat << EOF
 
-Important: Deploy updated wghub.conf configuration to wireguard with wg-quick:
-  sudo wg-quick down ./wghub.conf # if already configured
-  sudo wg-quick up ./wghub.conf
+Important: Deploy updated wg0.conf configuration to wireguard with wg-quick:
+  sudo wg-quick down ./wg0.conf # if already configured
+  sudo wg-quick up ./wg0.conf
   sudo wg show # to check status
 EOF
 }
@@ -200,10 +200,10 @@ main() {
     }
 
     check_if_wg_is_installed
-    test -f seqno.txt  || create_seq_no
-    test -f wgpsk.key  || create_psk
-    test -f wghub.key  || create_hub_key
-    test -f wghub.conf || create_hub_conf
+    test -f seqno.txt || create_seq_no
+    test -f wgpsk.key || create_psk
+    test -f wghub.key || create_hub_key
+    test -f wg0.conf  || create_hub_conf
 
     SEQNO=$(get_seq_no)
     test -f "wgclient$SEQNO.conf" || create_new_client "$SEQNO"

@@ -19,7 +19,7 @@ hub.
 As dependences `/bin/sh`, `wg`, `wg-quick`, `awk`, `grep` and `ip` commands
 should be available on hub. If `ip` is not available user is required to set
 `EXT_NET_IF` and `EXT_NET_IP` variables in script to external network interface
-name and IP address (or edit `wghub.conf`). Optionally `qrencode` can be used
+name and IP address (or edit `wg0.conf`). Optionally `qrencode` can be used
 to generate [QR codes](https://en.wikipedia.org/wiki/QR_code) for mobile
 applications.
 
@@ -63,9 +63,9 @@ another peer configuration within same hub.
 No seqno.txt... creating one!
 No wgpsk.key... creating one!
 No wghub.key... creating one!
-No wghub.conf... creating one!
+No wg0.conf... creating one!
 Wireguard hub address is 10.60.1.160:51820 on wlp2s0.
-Note: customize [Interface] section of wghub.conf if required!
+Note: customize [Interface] section of wg0.conf if required!
 No wgclient10.conf... creating one!
 █████████████████████████████████████████████████████████████████████
 █████████████████████████████████████████████████████████████████████
@@ -103,11 +103,11 @@ No wgclient10.conf... creating one!
 █████████████████████████████████████████████████████████████████████
 █████████████████████████████████████████████████████████████████████
 Scan QR code with your phone or use "wgclient10.conf" file.
-Updating wghub.conf... done!
+Updating wg0.conf... done!
 
-Important: Deploy updated wghub.conf configuration to wireguard with wg-quick:
-  sudo wg-quick down ./wghub.conf # if already configured
-  sudo wg-quick up ./wghub.conf
+Important: Deploy updated wg0.conf configuration to wireguard with wg-quick:
+  sudo wg-quick down ./wg0.conf # if already configured
+  sudo wg-quick up ./wg0.conf
   sudo wg show # to check status
 
 Note: passing argument to script creates symbolic link to created configuration
@@ -121,7 +121,7 @@ Note: passing argument to script creates symbolic link to created configuration
 On hub configure Wireguard.
 
 ```
-sudo wg-quick up ./wghub.conf
+sudo wg-quick up ./wg0.conf
 ```
 
 On peer scan QR code or copy `wgclient10.conf`.
@@ -152,14 +152,14 @@ hub's IPv6 NAT to IPv6 network.
 
 To use outer IPv6 addresses (i.e. connect client to hub over IPv6) just set
 `EXT_NET_IF` and `EXT_NET_IP` variables in script to external network interface
-name and IPv6 address (or edit `wghub.conf`).
+name and IPv6 address (or edit `wg0.conf`).
 
 ### Redirecting DNS
 
 DNS redirection might be required to integrate with services like
 [Pi-hole](https://pi-hole.net/) or
 [Cloudflare DNS over TLS](https://github.com/qdm12/cloudflare-dns-server).
-This could be achieved by using port 53 UDP/TCP redirection in `wghub.conf`.
+This could be achieved by using port 53 UDP/TCP redirection in `wg0.conf`.
 
 ```
 PostUp = iptables -t nat -A PREROUTING -i %i -p udp -m udp --dport 53 -j DNAT --to-destination 1.1.1.1:53
