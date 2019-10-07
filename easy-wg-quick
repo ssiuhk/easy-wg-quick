@@ -23,6 +23,8 @@
 #
 # For updates visit https://github.com/burghardt/easy-wg-quick
 
+DIR="$( cd "$(dirname "$0")" ; pwd -P )"
+
 check_if_wg_is_installed() {
     wg show interfaces >/dev/null 2>&1 || {
         echo 'Unable to use "wg" command. Are wireguard tools installed?'
@@ -53,6 +55,27 @@ get_seq_no() {
     NEXT=$((SEQNO+1))
     update_seq_no $NEXT
     echo "$SEQNO"
+}
+
+get_port_no() {
+    if [ -s ${DIR}/port_no ]; then
+        PORT_NO=$(cat ${DIR}/port_no)
+    else
+        PORT_NO=$(shuf -i 2000-65000 -n 1)
+        echo ${PORT_NO} > ${DIR}/port_no
+    fi
+    echo ${PORT_NO}
+}
+
+
+get_subnet_no() {
+    if [ -s ${DIR}/subnet_no ]; then
+        SUBNET_NO=$(cat ${DIR}/subnet_no)
+    else
+        SUBNET_NO=$(shuf -i 10-250 -n 1)
+        echo ${SUBNET_NO} > ${DIR}/subnet_no
+    fi
+    echo ${SUBNET_NO}
 }
 
 create_psk() {
@@ -180,14 +203,16 @@ main() {
     CONF_LINK="$1"
 
     EXT_NET_IF="$(ip route sh | grep '^default' | awk '{ print $5 }')"
-    EXT_NET_IP="$(ip addr sh "$EXT_NET_IF" | grep 'inet ' | xargs | \
-        awk -F'[ /]' '{ print $2 }')"
-    EXT_NET_PORT="51820"
-    INT_NET_HUB_IP="10.127.0.1"
+    #EXT_NET_IP="$(ip addr sh "$EXT_NET_IF" | grep 'inet ' | xargs | \
+    #    awk -F'[ /]' '{ print $2 }')"
+    EXT_NET_IP=$(curl ipconfig.io | head -n 1)
+    EXT_NET_PORT=$(get_port_no)
+    SUBNET_NO=$(get_subnet_no)
+    INT_NET_HUB_IP="192.168.${SUBNET_NO}.1"
 
     INT_NET_MASK="/24"
-    INT_NET_DNS="1.1.1.1"
-    INT_NET_PEER="10.127.0."
+    INT_NET_DNS="8.8.8.8"
+    INT_NET_PEER="$(echo $INT_NET_HUB_IP | cut -d'.' -f1-3)."
     INT_NET_PEER_MASK="/32"
 
     NET6=false
