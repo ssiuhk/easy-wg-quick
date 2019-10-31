@@ -1,3 +1,5 @@
 seqno.txt
+port_no
+subnet_no
 *.key
 *.conf
